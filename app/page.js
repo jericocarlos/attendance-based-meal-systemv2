@@ -105,7 +105,7 @@ export default function Home() {
               onAnimationComplete={() => {
                 setTimeout(() => {
                   window.location.reload();
-                }, 3000); // delay after animation
+                }, 9000); // delay after animation
               }}
             >
               {/* Left side - Employee Info */}

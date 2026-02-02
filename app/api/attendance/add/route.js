@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { executeQuery, attendancePool, freemealPool } from '@/lib/db';
+// import { time } from 'zod';
 
 export async function POST(request) {
   try {
@@ -89,7 +90,7 @@ export async function POST(request) {
 
     if (!employee) {
       return NextResponse.json(
-        { error: 'Person not found on Qualified Free Meal List.Kindly contact HR Department for assistance.' },
+        { error: 'PERSON NOT FOUND ON QUALIFIED FREE MEAL LIST.\nKINDLY CONTACT HR DEPARTMENT FOR ASSISTANCE.' },  //'Person not found on Qualified Free Meal List.Kindly contact HR Department for assistance.' },
         { status: 404 }
       );
     }
@@ -120,6 +121,7 @@ export async function POST(request) {
 
     const today = timeParamRaw ? new Date(timeParamRaw) : new Date();
     const claimedDate = new Date(latestLog?.time_claimed);
+    const dateOnly = timeForQueries.slice(0, 10);
 
     console.log("🕒 Processing free meal log for:", employee.name, "on", today.toDateString());
 
@@ -137,7 +139,7 @@ export async function POST(request) {
           VALUES (DATE(?), ?, 'CLAIMED', ?, ?)
         `;
         insertLogValues = [timeParamRaw, employee.ashima_id, timeParamRaw, employee.person_type];
-        await attendanceConn.ping();
+       // await attendanceConn.ping();
         console.log('SAS DB connected 1');
       } else {
         insertLogQuery = `
@@ -145,7 +147,7 @@ export async function POST(request) {
           VALUES (CURDATE(), ?, 'CLAIMED', NOW(), ?)
         `;
         insertLogValues = [employee.ashima_id, employee.person_type];
-        await attendanceConn.ping();
+        //await attendanceConn.ping();
         console.log('SAS DB connected 2');
       }
 
@@ -159,12 +161,12 @@ export async function POST(request) {
       `;
       await executeQuery({ query: updateQuery, values: [latestLog.id] });
       console.log("ℹ️ Meal already claimed earlier on this date. Status updated.");
-      await attendanceConn.ping();
+      //await attendanceConn.ping();
       console.log('SAS DB connected 3');
     } else if (latestLog.log_type === "CLAIMED ALREADY" && isSameDay) {
       nextLogType = "Meal already claimed on that date. You cannot claim again.";
       console.log("❌", nextLogType);
-      await attendanceConn.ping();
+      //await attendanceConn.ping();
       console.log('SAS DB connected 4');
     }
 
@@ -202,8 +204,9 @@ export async function POST(request) {
           AND DATE(in_time) = ?
         LIMIT 1
         `,
-        [employee.ashima_id, timeParamRaw]
+        [employee.ashima_id, dateOnly]
       );
+
 
       if (rows.length === 0) {
         const errorMessage = "No attendance record found for the target date. Free meal can only be claimed if you have attended.";
