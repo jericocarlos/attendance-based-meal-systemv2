@@ -1,4 +1,4 @@
-//import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -60,7 +60,7 @@ export async function POST(req) {
             </p>
 
             <p>
-              This report is <strong>sent every Monday at 12:00 PM.</strong>
+              This report was <strong>sent every Monday at 12:00 NN.</strong>
             </p>
 
             <p>
@@ -81,3 +81,4 @@ export async function POST(req) {
     return NextResponse.json({ error: 'Failed to send free meal report' }, { status: 500 });
   }
 }
+

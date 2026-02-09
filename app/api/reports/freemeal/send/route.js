@@ -61,7 +61,7 @@ export async function POST(req) {
             </p>
 
             <p>
-              This report is <strong>sent every Monday at 12:00 PM.</strong>
+              This report was <strong>sent every Monday at 12:00 NN.</strong>
             </p>
 
             <p>
