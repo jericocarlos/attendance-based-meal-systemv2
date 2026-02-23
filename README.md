@@ -53,7 +53,7 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 - **React Hook Form** - Form state management
 - **Zod** - Schema validation
 
-<!-- ### Backend
+### Backend
 
 - **Next.js API Routes** - Serverless API endpoints
 - **MySQL 2** - Database connection and queries
@@ -67,7 +67,7 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 - **PostCSS** - CSS processing
 - **Turbopack** - Fast development builds
 
-## 🚀 Getting Started
+<!-- ## 🚀 Getting Started
 
 ### Prerequisites
 
