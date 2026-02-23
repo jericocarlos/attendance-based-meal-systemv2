@@ -268,8 +268,8 @@ export const useFreemealLogsManager = () => {
       setEmailSending(true);
       setError(null);
 
-      const to = 'sfhr@eastwestbpo.com'; // Predefined recipient for production
-      //const to = 'jcarlos@eastwestbpo.com'; // Predefined recipient for testing
+      //const to = 'sfhr@eastwestbpo.com'; // Predefined recipient for production
+      const to = 'jcarlos@eastwestbpo.com'; // Predefined recipient for testing
       if (!to) {
         setEmailSending(false);
         return;
@@ -295,6 +295,37 @@ export const useFreemealLogsManager = () => {
       console.error('Error sending previous week logs via email:', error);
       setError(error.message);
       enqueueSnackbar(error.message || 'Failed to email previous week logs', { variant: 'error' });
+    } finally {
+      setEmailSending(false);
+    }
+  }, [enqueueSnackbar]);
+
+  /**
+   * Manually trigger the scheduled email send (for testing/admin purposes)
+   * This uses the automated scheduler endpoint
+   */
+  const handleManualScheduledEmailSend = useCallback(async () => {
+    try {
+      setEmailSending(true);
+      setError(null);
+
+      const response = await fetch('/api/admin/schedule/send-freemeal-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to trigger scheduled email send');
+      }
+
+      const data = await response.json();
+      enqueueSnackbar('Scheduled email sent successfully', { variant: 'success' });
+      console.log('Scheduled email response:', data);
+    } catch (error) {
+      console.error('Error triggering scheduled email send:', error);
+      setError(error.message);
+      enqueueSnackbar(error.message || 'Failed to trigger scheduled email', { variant: 'error' });
     } finally {
       setEmailSending(false);
     }
@@ -432,6 +463,7 @@ export const useFreemealLogsManager = () => {
     handleExportLogs,
     handleSendLogsByEmail,
     handleSendPreviousWeekByEmail,
+    handleManualScheduledEmailSend,
     // handleExportPreviousWeek,
     openFilterDialog,
     resetFilters,

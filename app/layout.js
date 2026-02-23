@@ -1,4 +1,5 @@
 import './globals.css';
+import '@/lib/scheduler-init'; // Import to ensure scheduler is initialized
 
 export const metadata = {
   title: 'Attendance-Based Meal System',
