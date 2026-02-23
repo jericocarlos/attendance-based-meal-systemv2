@@ -160,7 +160,7 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 ## 🏗️ Project Structure
 
 ```
-freemeal-monitoring-system/
+attendance-based-meal-system/
 ├── app/                          # Next.js App Router
 │   ├── admin/                    # Admin dashboard pages
 │   │   ├── (root)/              # Protected admin routes
@@ -253,7 +253,7 @@ For support and questions:
 
 - Create an issue in the GitHub repository
 - Check the documentation in the `/docs` folder (if available)
-- Review the API documentation in the codebase
+- Review the API documentation in the codebase -->
 
 ## 🙏 Acknowledgments
 
@@ -261,4 +261,4 @@ For support and questions:
 - UI components from [Radix UI](https://www.radix-ui.com/)
 - Icons from [Lucide](https://lucide.dev/)
 - Styling with [Tailwind CSS](https://tailwindcss.com/)
-- Animations powered by [Framer Motion](https://www.framer.com/motion/) -->
+- Animations powered by [Framer Motion](https://www.framer.com/motion/)
