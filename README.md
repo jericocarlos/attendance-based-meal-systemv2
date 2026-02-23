@@ -4,16 +4,18 @@ The integration of the Free Meal Monitoring System and Security Attendance Syste
 
 This integrated approach provides real-time monitoring, enhanced security, accurate attendance tracking, and automated meal distribution, supported by administrative controls and comprehensive reporting.
 
-<!-- ## 🚀 Features
+## 🚀 Features
 
 ### 🏠 Employee Interface
+
 - **RFID Tag Reading**: Instant free meal logging via RFID card scanning
 - **Real-time Clock**: Live time display with smooth animations
 - **Employee Information Display**: Shows employee details, photo, and free meal status
 - **Visual Feedback**: Smooth animations and audio feedback for successful/failed scans
 - **Status Indicators**: Clear visual indicators for claimed/claimed already status
 
-### 👨‍💼 Admin Dashboard
+<!-- ### 👨‍💼 Admin Dashboard
+
 - **Comprehensive Dashboard**: Overview statistics including total employees, free meal logs, and department metrics
 - **Employee Management**: Full CRUD operations for employee records
 - **Free Meal Logs**: Detailed free meal tracking with filtering and export capabilities
@@ -23,12 +25,14 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 - **Real-time Statistics**: Live dashboard with attendance insights
 
 ### 🔐 Security & Authentication
+
 - **NextAuth.js Integration**: Secure authentication system
 - **Role-based Access Control**: Different access levels (superadmin, admin, hr)
 - **Protected Routes**: Secure admin areas with proper authorization
 - **Session Management**: Persistent login sessions with proper security
 
 ### 🎨 User Experience
+
 - **Modern UI/UX**: Built with Tailwind CSS and Radix UI components
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
 - **Dark/Light Theme Support**: Adaptive theming capabilities
@@ -38,6 +42,7 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **Next.js 15.3.1** - React framework with App Router
 - **React 19** - Modern React with latest features
 - **Tailwind CSS** - Utility-first CSS framework
@@ -48,6 +53,7 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 - **Zod** - Schema validation
 
 ### Backend
+
 - **Next.js API Routes** - Serverless API endpoints
 - **MySQL 2** - Database connection and queries
 - **NextAuth.js** - Authentication and session management
@@ -55,6 +61,7 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 - **JSON2CSV** - Data export functionality
 
 ### Development Tools
+
 - **ESLint** - Code linting
 - **PostCSS** - CSS processing
 - **Turbopack** - Fast development builds
@@ -62,6 +69,7 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 18.0 or higher
 - MySQL database server
 - RFID reader (compatible with HID keyboard emulation)
@@ -69,18 +77,21 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/jericocarlos/attendance-based-meal-system.git
    cd attendance-based-meal-system
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Environment Setup**
    Create a `.env.local` file in the root directory:
+
    ```env
    # Database Configuration
    DB_HOST=localhost
@@ -97,6 +108,7 @@ This integrated approach provides real-time monitoring, enhanced security, accur
    ```
 
 4. **Database Setup**
+
    ```bash
    # Create the database
    mysql -u root -p -e "CREATE DATABASE db_freemeal;"
@@ -109,11 +121,13 @@ This integrated approach provides real-time monitoring, enhanced security, accur
    ```
 
 5. **Create Admin User**
+
    ```bash
    node scripts/create-user.js
    ```
 
 6. **Start Development Server**
+
    ```bash
    npm run dev
    ```
@@ -125,12 +139,14 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 ## 📖 Usage
 
 ### For Employees
+
 1. Simply tap your RFID card on the reader
 2. The system will automatically detect your card and log your free meal claimed
 3. Visual and audio feedback will confirm the action
 4. Claimed/Claimed Already status is automatically determined based on your last log
 
 ### For Administrators
+
 1. Login to the admin dashboard at `/admin/login`
 2. Use the dashboard to:
    - View real-time free meal statistics
@@ -233,6 +249,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 For support and questions:
+
 - Create an issue in the GitHub repository
 - Check the documentation in the `/docs` folder (if available)
 - Review the API documentation in the codebase
