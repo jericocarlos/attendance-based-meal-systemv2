@@ -16,22 +16,24 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 
 ### 👨‍💼 Admin Dashboard
 
-- **Comprehensive Dashboard**: Overview statistics including total employees, free meal logs, and department metrics
-- **Employee Management**: Full CRUD operations for employee records
+- **Comprehensive Dashboard**: Overview statistics including qualified employee lists, trainees & intern lists, free meal logs, and department metrics
+- **Employees Management**: Full CRUD operations for qualified employees record
+- **Trainees Management**: Full CRUD operations for trainees record
+- **Interns Management**: Full CRUD operations for interns or ojts record
 - **Free Meal Logs**: Detailed free meal tracking with filtering and export capabilities
 - **Department Management**: Organize employees by departments and positions
 - **Account Management**: Admin user account creation and role management
 - **Data Export**: Export attendance data to CSV format
 - **Real-time Statistics**: Live dashboard with attendance insights
 
-<!-- ### 🔐 Security & Authentication
+### 🔐 Security & Authentication
 
 - **NextAuth.js Integration**: Secure authentication system
 - **Role-based Access Control**: Different access levels (superadmin, admin, hr)
 - **Protected Routes**: Secure admin areas with proper authorization
 - **Session Management**: Persistent login sessions with proper security
 
-### 🎨 User Experience
+<!-- ### 🎨 User Experience
 
 - **Modern UI/UX**: Built with Tailwind CSS and Radix UI components
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
