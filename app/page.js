@@ -21,6 +21,7 @@ import { useToast } from '@/components/ui/toast';
 import { ANIMATIONS } from '@/constants';
 import Image from 'next/image';
 
+
 export default function Home() {
   const {
     employeeInfo,
