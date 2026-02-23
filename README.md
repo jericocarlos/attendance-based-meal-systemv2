@@ -33,11 +33,10 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 - **Protected Routes**: Secure admin areas with proper authorization
 - **Session Management**: Persistent login sessions with proper security
 
-<!-- ### 🎨 User Experience
+### 🎨 User Experience
 
 - **Modern UI/UX**: Built with Tailwind CSS and Radix UI components
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
-- **Dark/Light Theme Support**: Adaptive theming capabilities
 - **Smooth Animations**: Framer Motion animations for enhanced user experience
 - **Audio Feedback**: Sound notifications for attendance actions
 
@@ -54,7 +53,7 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 - **React Hook Form** - Form state management
 - **Zod** - Schema validation
 
-### Backend
+<!-- ### Backend
 
 - **Next.js API Routes** - Serverless API endpoints
 - **MySQL 2** - Database connection and queries
