@@ -14,7 +14,7 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 - **Visual Feedback**: Smooth animations and audio feedback for successful/failed scans
 - **Status Indicators**: Clear visual indicators for claimed/claimed already status
 
-<!-- ### 👨‍💼 Admin Dashboard
+### 👨‍💼 Admin Dashboard
 
 - **Comprehensive Dashboard**: Overview statistics including total employees, free meal logs, and department metrics
 - **Employee Management**: Full CRUD operations for employee records
@@ -24,7 +24,7 @@ This integrated approach provides real-time monitoring, enhanced security, accur
 - **Data Export**: Export attendance data to CSV format
 - **Real-time Statistics**: Live dashboard with attendance insights
 
-### 🔐 Security & Authentication
+<!-- ### 🔐 Security & Authentication
 
 - **NextAuth.js Integration**: Secure authentication system
 - **Role-based Access Control**: Different access levels (superadmin, admin, hr)
