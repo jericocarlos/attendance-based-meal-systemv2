@@ -178,7 +178,7 @@ const EmployeeSettingsTab = memo(({
       </fieldset>
 
       {/* Signature Section */}
-      <fieldset className="space-y-4">
+      {/* <fieldset className="space-y-4">
         <legend className="text-base font-medium">Signature Configuration</legend>
         
         <div className="space-y-2">
@@ -215,7 +215,7 @@ const EmployeeSettingsTab = memo(({
             </p>
           )}
         </div>
-      </fieldset>
+      </fieldset> */}
 
       {/* RFID Tag Section */}
       <fieldset className="space-y-4">
