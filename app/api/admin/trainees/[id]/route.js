@@ -32,6 +32,7 @@ export async function PUT(req, context) {
       rfid_tag,
       photo,
       status,
+      meal_expiration_date,
       removePhoto
     } = body;
 
@@ -67,6 +68,9 @@ export async function PUT(req, context) {
 
     updateFields.push("status = ?");
     values.push(status);
+
+    updateFields.push("meal_expiration_date = ?");
+    values.push(meal_expiration_date);
 
     values.push(id);
 

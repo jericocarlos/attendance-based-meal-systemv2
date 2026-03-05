@@ -6,7 +6,7 @@ function decodeBase64ToBinary(base64String) {
   return Buffer.from(base64String.replace(/^data:image\/\w+;base64,/, ""), "base64");
 }
 
-// GET: Fetch Interns with Search, Filters, and Pagination
+// GET: Fetch Trainees with Search, Filters, and Pagination
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
@@ -26,7 +26,7 @@ export async function GET(req) {
     if (department) whereParts.push("d.id = ?");
     if (position) whereParts.push("p.id = ?");
 
-    // Always exclude discontinued interns
+    // Always exclude discontinued trainees
     whereParts.push("t.status != 'discontinued'");
 
     // If a status filter is provided and it's not 'discontinued', include it
@@ -39,7 +39,7 @@ export async function GET(req) {
         t.id, t.ashima_id, t.name, 
         d.name AS department, p.name AS position, 
         t.rfid_tag, t.photo, t.status,
-        t.department_id, t.position_id
+        t.department_id, t.position_id, t.meal_expiration_date
       FROM 
         trainees t
       LEFT JOIN 
@@ -62,12 +62,13 @@ export async function GET(req) {
       offset,
     ];
 
-    const interns = await executeQuery({ query, values });
-    const formattedInterns = interns.map((intern) => ({
-      ...intern,
-      photo: intern.photo
-        ? `data:image/jpeg;base64,${Buffer.from(intern.photo).toString('base64')}`
+    const trainees = await executeQuery({ query, values });
+    const formattedTrainees = trainees.map((trainee) => ({
+      ...trainee,
+      photo: trainee.photo
+        ? `data:image/jpeg;base64,${Buffer.from(trainee.photo).toString('base64')}`
         : null,
+      meal_expiration_date: trainee.meal_expiration_date ? new Date(trainee.meal_expiration_date).toLocaleDateString('en-US') : null,
     }));
 
     // Count query uses same whereClause and similar values (without limit/offset)
@@ -90,7 +91,7 @@ export async function GET(req) {
     const totalResult = await executeQuery({ query: countQuery, values: countValues });
 
     return NextResponse.json({
-      data: formattedInterns,
+      data: formattedTrainees,
       total: totalResult[0]?.total || 0,
       page,
       limit,
@@ -107,14 +108,14 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { ashima_id, name, rfid_tag, photo, department_id, position_id } = body;
+    const { ashima_id, name, rfid_tag, photo, department_id, position_id, meal_expiration_date } = body;
 
     // Decode Base64 photo to binary
     const binaryPhoto = photo ? decodeBase64ToBinary(photo) : null;
 
     const insertQuery = `
-      INSERT INTO trainees (ashima_id, name, rfid_tag, photo, status, department_id, position_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO trainees (ashima_id, name, rfid_tag, photo, status, department_id, position_id, meal_expiration_date)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const result = await executeQuery({
@@ -126,7 +127,8 @@ export async function POST(req) {
         binaryPhoto,
         "active",
         department_id ? parseInt(department_id, 10) : null,
-        position_id ? parseInt(position_id, 10) : null
+        position_id ? parseInt(position_id, 10) : null,
+        meal_expiration_date || null,
       ]
     });
 

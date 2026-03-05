@@ -215,9 +215,9 @@ const TraineeDetailsTab = memo(({
         </div>
       </fieldset>
 
-      {/* Status Section */}
+      {/* Status & Meal Expiration Section */}
       <fieldset className="space-y-4">
-        <legend className="sr-only">Status Information</legend>
+        <legend className="sr-only">Status & Meal Expiration Information</legend>
         {/* Active Status */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Status */}
@@ -253,6 +253,28 @@ const TraineeDetailsTab = memo(({
                 Status can only be changed when editing an existing employee
               </p>
             )}
+          </div>
+
+
+          {/* Meal Expiration */}
+          <div className="space-y-2">
+            <Label htmlFor="meal_expiration_date" className="text-sm font-medium">
+              Meal Expiration Date
+            </Label>
+            <Controller
+              name="meal_expiration_date"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="meal_expiration_date"
+                  type="date"
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  disabled={loadingOptions}
+                  aria-label="Select meal expiration date"
+                />
+              )}
+            />
           </div>
         </div>
       </fieldset>

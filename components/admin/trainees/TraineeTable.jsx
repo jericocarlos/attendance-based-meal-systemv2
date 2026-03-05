@@ -111,6 +111,11 @@ export default function TraineeTable({
       },
     },
     {
+      header: "Meal Expiration Date",
+      accessorKey: "meal_expiration_date",
+      cell: ({ getValue }) => <span>{getValue() || "Not Assigned"}</span>,
+    },
+    {
       header: "Actions",
       id: "actions",
       cell: ({ row }) => (
