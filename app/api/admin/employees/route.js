@@ -21,7 +21,7 @@ export async function GET(req) {
     // Dynamic WHERE clause for search and filters
     const whereClause = `
       WHERE 
-        (e.ashima_id LIKE ? OR e.name LIKE ?)
+        (e.ashima_id LIKE ? OR e.name LIKE ? OR e.rfid_tag LIKE ?)
         ${department ? `AND d.id = ?` : ""}
         ${position ? `AND p.id = ?` : ""}
         ${status ? `AND e.status = ?` : ""}
@@ -48,6 +48,7 @@ export async function GET(req) {
     const values = [
       `%${search}%`,
       `%${search}%`,
+      `%${search}%`,
       ...(department ? [department] : []),
       ...(position ? [position] : []),
       ...(status ? [status] : []),
@@ -72,6 +73,7 @@ export async function GET(req) {
     `;
 
     const countValues = [
+      `%${search}%`,
       `%${search}%`,
       `%${search}%`,
       ...(department ? [department] : []),

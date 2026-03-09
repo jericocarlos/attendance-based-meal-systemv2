@@ -207,7 +207,7 @@ export async function POST(request) {
         [employee.ashima_id, dateOnly]
       );
 
-
+      console.log(`🔍 Attendance check for ${employee.ashima_id} on ${dateOnly}:`, rows.length > 0 ? "Found attendance record." : "No attendance record found.");
       if (rows.length === 0) {
         const errorMessage = "No attendance record found for the selected date. Free meals can only be claimed by attendees.";
         console.log("❌", errorMessage);
@@ -220,8 +220,6 @@ export async function POST(request) {
         // Insert if needed
         // Proceed only if enabled & has attendance
         if (employee.is_enabled === 1) {
-
-          
           // Check meal expiration for trainees
           if (employee.person_type === 'trainee') {
             const [traineeData] = await executeQuery({
@@ -236,31 +234,22 @@ export async function POST(request) {
               console.log(employee.ashima_id, "meal expiration date:", expirationDate, "today:", todayFormatted);
               
               if (todayFormatted === expirationDate) {
-                const errorMessage = "Trainee's meal has been expired. Cannot claim meal. Proceed to HR.";
+                const errorMessage = "Trainee's meal expiration date has passed. Cannot claim meal. Kindly contact HR for assistance.";
                 console.log("❌", errorMessage);
                 return NextResponse.json(
                   { error: errorMessage },
                   { status: 400 }
                 );
-              }else{
-                if (insertLogQuery) {
-                  await executeQuery({
-                    query: insertLogQuery,
-                    values: insertLogValues,
-                  });
-                }
               }
-            }
-          }else{
-            if (insertLogQuery) {
-              await executeQuery({
-                query: insertLogQuery,
-                values: insertLogValues,
-              });
             }
           }
           
-        
+          if (insertLogQuery) {
+            await executeQuery({
+              query: insertLogQuery,
+              values: insertLogValues,
+            });
+          }
         } else {
           const errorMessage = "Free meal counter is disabled. Cannot claim meal.";
           console.log("❌", errorMessage);
@@ -284,6 +273,25 @@ export async function POST(request) {
     }
 
     // ******************************* Attendance Check End ************************************** //
+
+    // // Insert if needed
+    // // Proceed only if enabled & has attendance
+    // if (employee.is_enabled === 1 && rows[0].attendance_count > 0) {
+    //   if (insertLogQuery) {
+    //     await executeQuery({
+    //       query: insertLogQuery,
+    //       values: insertLogValues,
+    //     });
+    //   }
+    // } else {
+    //   const errorMessage = "Free meal counter is disabled. Cannot claim meal.";
+    //   console.log("❌", errorMessage);
+    //   return NextResponse.json(
+    //     { error: errorMessage },
+    //     { status: 400 }
+    //   );
+    // }
+
 
     // Update meal_count or last_active as before
     if (employee.person_type === 'employee' && nextLogType === 'CLAIMED' && employee.meal_count > 0) {
