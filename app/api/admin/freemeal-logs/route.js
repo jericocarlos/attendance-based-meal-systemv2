@@ -22,24 +22,24 @@ export async function GET(req) {
 
     // Add search condition
     if (search) {
-      conditions.push("(l.ashima_id LIKE ? OR e.name LIKE ?)");
+      conditions.push("(ashima_id LIKE ? OR name LIKE ?)");
       values.push(`%${search}%`, `%${search}%`);
     }
     
     // Add position filter
     if (position) {
-      conditions.push("e.position_id = ?");
+      conditions.push("position_id = ?");
       values.push(position);
     }
 
     // Add date range filters
     if (startDate) {
-      conditions.push("DATE(l.time_claimed) >= ?");
+      conditions.push("DATE(time_claimed) >= ?");
       values.push(startDate);
     }
 
     if (endDate) {
-      conditions.push("DATE(l.time_claimed) <= ?");
+      conditions.push("DATE(time_claimed) <= ?");
       values.push(endDate);
     }
 
@@ -51,59 +51,63 @@ export async function GET(req) {
     // Add pagination values
     values.push(limit, offset);
 
-    // Query to fetch logs with pagination
+    // Build the UNION query used for both listing and counting
+    const unionQuery = `
+      SELECT 
+        l.id, 
+        l.date_claimed,
+        e.ashima_id,
+        e.rfid_tag, 
+        e.name, 
+        p.name AS position, 
+        e.position_id,
+        l.log_type, 
+        l.time_claimed, 
+        'employee' AS person_type
+      FROM freemeal_logs l
+      JOIN employees e ON l.ashima_id = e.ashima_id
+      LEFT JOIN positions p ON e.position_id = p.id
+
+      UNION ALL
+
+      SELECT 
+        l.id, 
+        l.date_claimed,
+        i.id_number AS ashima_id,
+        i.rfid_tag, 
+        i.name, 
+        p.name AS position, 
+        i.position_id,
+        l.log_type, 
+        l.time_claimed, 
+        'intern' AS person_type
+      FROM freemeal_logs l
+      JOIN interns i ON l.ashima_id = i.id_number
+      LEFT JOIN positions p ON i.position_id = p.id
+
+      UNION ALL
+
+      SELECT 
+        l.id, 
+        l.date_claimed,
+        t.ashima_id,
+        t.rfid_tag, 
+        t.name, 
+        p.name AS position, 
+        t.position_id,
+        l.log_type, 
+        l.time_claimed, 
+        'trainee' AS person_type
+      FROM freemeal_logs l
+      JOIN trainees t ON l.ashima_id = t.ashima_id
+      LEFT JOIN positions p ON t.position_id = p.id
+    `;
+
     const query = `
-        (
-          SELECT 
-            l.id, 
-            l.date_claimed,
-            e.ashima_id,
-            e.rfid_tag, 
-            e.name, 
-            p.name AS position, 
-            l.log_type, 
-            l.time_claimed, 
-            'employee' AS person_type
-          FROM freemeal_logs l
-          JOIN employees e ON l.ashima_id = e.ashima_id
-          LEFT JOIN positions p ON e.position_id = p.id
-        )
-
-        UNION ALL
-
-        (
-          SELECT 
-            l.id, 
-            l.date_claimed,
-            i.id_number AS ashimia_id,
-            i.rfid_tag, 
-            i.name, 
-            p.name AS position, 
-            l.log_type, 
-            l.time_claimed, 
-            'intern' AS person_type
-          FROM freemeal_logs l
-          JOIN interns i ON l.ashima_id = i.id_number
-          LEFT JOIN positions p ON i.position_id = p.id
-        )
-
-        UNION ALL
-
-        (
-          SELECT 
-            l.id, 
-            l.date_claimed,
-            t.ashima_id,
-            t.rfid_tag, 
-            t.name, 
-            p.name AS position, 
-            l.log_type, 
-            l.time_claimed, 
-            'trainee' AS person_type
-          FROM freemeal_logs l
-          JOIN trainees t ON l.ashima_id = t.ashima_id
-          LEFT JOIN positions p ON t.position_id = p.id
-        )
+      SELECT *
+      FROM (
+        ${unionQuery}
+      ) AS u
       ${whereClause}
       ORDER BY time_claimed DESC
       LIMIT ? OFFSET ?
@@ -119,9 +123,9 @@ export async function GET(req) {
 
     const countQuery = `
       SELECT COUNT(*) as total
-      FROM freemeal_logs l
-      LEFT JOIN employees e ON e.ashima_id = l.ashima_id
-      LEFT JOIN departments d ON e.department_id = d.id
+      FROM (
+        ${unionQuery}
+      ) AS u
       ${countConditions}
     `;
 
