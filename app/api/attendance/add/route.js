@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { executeQuery, attendancePool, freemealPool } from '@/lib/db';
+import { executeQuery, attendancePool } from '@/lib/db';
 // import { time } from 'zod';
 
 export async function POST(request) {
@@ -112,7 +112,7 @@ export async function POST(request) {
       query: latestLogQuery,
       values: [employee.ashima_id, timeForQueries],
     });
-    const freemealConn = await freemealPool.getConnection();
+    // const freemealConn = await freemealPool.getConnection();
     const attendanceConn = await attendancePool.getConnection();
 
     let nextLogType = "CLAIMED";
