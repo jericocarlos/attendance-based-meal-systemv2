@@ -6,7 +6,8 @@ import {
   CalendarCheck, 
   Clipboard,
   Database, 
-  UserCog, 
+  UserCog,
+  Cog,
   Shield 
 } from "lucide-react";
 
@@ -42,6 +43,14 @@ export const MODULE_DEFINITIONS = {
     color: 'amber',
     description: 'Manage departments and positions',
     ariaLabel: 'Navigate to data management'
+  },
+  smtp_configurations: {
+    name: 'SMTP Configurations',
+    href: '/admin/smtp-configurations',
+    icon: <Cog className="h-6 w-6" />,
+    color: 'green',
+    description: 'Manage SMTP settings',
+    ariaLabel: 'Navigate to SMTP configurations'
   },
   account_logins: {
     name: 'Account Logins',

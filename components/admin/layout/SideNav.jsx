@@ -9,6 +9,7 @@ import {
   Clipboard,
   Users,
   UserCog,
+  Cog,
   Shield,
   Database
 } from "lucide-react";
@@ -40,6 +41,11 @@ const MODULE_DEFINITIONS = {
     name: 'Data Management',
     href: '/admin/lists',
     icon: <Database className="h-[18px] w-[18px]" />,
+  },
+  smtp_configurations: {
+    name: 'SMTP Configurations',
+    href: '/admin/smtp-configurations',
+    icon: <Cog className="h-[18px] w-[18px]" />,
   },
   account_logins: {
     name: 'Account Logins',

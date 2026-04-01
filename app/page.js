@@ -9,14 +9,6 @@ import ErrorDisplay from '@/components/layout/home/ErrorDisplay';
 import useAttendance from '@/hooks/useAttendance';
 import { useState } from 'react';
 import useF2Shortcut  from '@/hooks/useF2Shortcut';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription
-} from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/toast';
 import { ANIMATIONS } from '@/constants';
 import Image from 'next/image';
@@ -32,12 +24,9 @@ export default function Home() {
     handleTagRead,
     clearEmployeeInfo,
     loading, // <-- Destructure loading
-    submitManualDate,
     manualDateOverride,
   } = useAttendance();
 
-  const [isManualDateOpen, setIsManualDateOpen] = useState(false);
-  const [manualDate, setManualDate] = useState('');
   const { ToastContainer, success, error: toastError } = useToast();
   // Format helper for the override and display
   const formatDateTime = (dateString) => {
@@ -55,7 +44,24 @@ export default function Home() {
     }
   };
 
-  useF2Shortcut(() => setIsManualDateOpen(true));
+  // Function to activate unclaimed meals
+  const activateUnclaimedMeals = async () => {
+    try {
+      const response = await fetch('/api/attendance/activate-unclaimed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (response.ok) {
+        success('Unclaimed Meals has been activated');
+      } else {
+        toastError('Failed to activate unclaimed meals');
+      }
+    } catch (err) {
+      toastError('Failed to activate unclaimed meals');
+    }
+  };
+
+  useF2Shortcut(() => activateUnclaimedMeals());
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-slate-900 text-white overflow-hidden">
@@ -87,7 +93,7 @@ export default function Home() {
                 transition={{ repeat: Infinity, duration: 2 }}
               >
                 Please Tap Your ID Card In Claiming Your Free Meal.
-                <p style={{ fontWeight: "semibold" }}>Note: For Manual Date Change press F2.</p>
+                <p style={{ fontWeight: "semibold" }}>Note: For activating unclaimed meals press F2.</p>
               </motion.h2>
             </motion.div>
           )}
@@ -170,66 +176,6 @@ export default function Home() {
 
       {/* Toast container */}
       <ToastContainer />
-
-      {/* Manual Date Modal */}
-      <Dialog open={isManualDateOpen} onOpenChange={setIsManualDateOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Manual Date Change</DialogTitle>
-            <DialogDescription className="text-red-500">
-              Note: When changing date it must be the previous date and not the future date.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="mt-4">
-            <label className="block mb-2 font-medium">Select Previous Date:</label>
-            <input
-              name="manualDate"
-              type="date"
-              value={manualDate}
-              onChange={(e) => setManualDate(e.target.value)}
-              className="w-full rounded border px-3 py-2 bg-slate-800 text-white"
-            />
-          </div>
-
-          <DialogFooter>
-            <button
-              type="button"
-              className="px-4 py-2 rounded bg-gray-200 text-black"
-              onClick={() => setIsManualDateOpen(false)}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="ml-3 px-4 py-2 rounded bg-cyan-500 text-white"
-              onClick={async () => {
-                try {
-                  const payloadDate = manualDate ? manualDate.replace('T', ' ') : null;
-                  const result = await submitManualDate(payloadDate);
-
-                  if (result?.logType === 'OVERRIDE_SET') {
-                    if (payloadDate) {
-                      success(`Current date set: ${formatDateTime(payloadDate)}`);
-                    } else {
-                      success('Current date cleared');
-                    }
-                  } else {
-                    success(`Manual date saved — ${result.logType}`);
-                  }
-
-                  setIsManualDateOpen(false);
-                  setManualDate('');
-                } catch (err) {
-                  toastError(err.message || 'Failed to submit manual date.');
-                }
-              }}
-            >
-              Confirm
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* HID Listener */}
       <HIDListener onTagRead={handleTagRead} />

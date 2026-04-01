@@ -7,6 +7,7 @@ const routeModuleMap = {
    '/admin/trainees-management': 'trainees_management',
   '/admin/interns-management': 'interns_management',
   '/admin/lists': 'data_management',
+  '/admin/smtp-configurations': 'smtp_configurations',
   '/admin/account-logins': 'account_logins',
     '/admin/freemeal-logs': 'freemeal_logs',
   '/admin/role-permissions': 'role_permissions'
@@ -14,8 +15,8 @@ const routeModuleMap = {
 
 // Default permissions for fallback (when database is unavailable)
 const defaultPermissions = {
-  superadmin: ['employees_management', 'trainees_management', 'interns_management', 'data_management', 'account_logins', 'freemeal_logs', 'role_permissions'],
-  admin: ['employees_management', 'trainees_management', 'interns_management', 'data_management', 'account_logins', 'freemeal_logs'],
+  superadmin: ['employees_management', 'trainees_management', 'interns_management', 'data_management', 'smtp_configurations', 'account_logins', 'freemeal_logs', 'role_permissions'],
+  admin: ['employees_management', 'trainees_management', 'interns_management', 'data_management', 'smtp_configurations', 'account_logins', 'freemeal_logs'],
   hr: ['employees_management', 'freemeal_logs'], // Make sure HR has employees_management & freemeal_logs access
   recruitment: ['trainees_management', 'interns_management'] // Make sure Recruitment has trainees and interns management
 };

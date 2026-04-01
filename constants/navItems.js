@@ -24,6 +24,11 @@ export const NAV_ITEMS = {
       icon: <Database className="h-[18px] w-[18px]" />,
     },
     {
+      name: 'SMTP Configurations',
+      href: '/admin/smtp-configurations',
+      icon: <Cog className="h-[18px] w-[18px]" />,
+    },
+    {
       name: 'Account Logins',
       href: '/admin/account-logins',
       icon: <UserCog className="h-[18px] w-[18px]" />,
@@ -60,6 +65,11 @@ export const NAV_ITEMS = {
       name: 'Data Management',
       href: '/admin/lists',
       icon: <Database className="h-[18px] w-[18px]" />,
+    },
+    {
+      name: 'SMTP Configurations',
+      href: '/admin/smtp-configurations',
+      icon: <Cog className="h-[18px] w-[18px]" />,
     },
     {
       name: 'Free Meal Logs',

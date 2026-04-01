@@ -55,6 +55,12 @@ export const MODULES = [
     category: 'Core'
   },
   { 
+    value: 'smtp_configurations', 
+    label: 'SMTP Configurations', 
+    description: 'Manage SMTP server configurations',
+    category: 'Admin'
+  },
+  { 
     value: 'freemeal_logs', 
     label: 'Free Meal Logs', 
     description: 'Manage free meal logs and records',
@@ -87,7 +93,8 @@ export const MODULE_ICONS = {
   employees_management: 'UserCog',
   trainees_management: 'UserCog',
   interns_management: 'UserCog',
-  data_management: 'Database', 
+  data_management: 'Database',
+  smtp_configurations: 'Cog',
   freemeal_logs: 'Clipboard',
   account_logins: 'Users',
   role_permissions: 'Shield'
