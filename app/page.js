@@ -12,6 +12,7 @@ import useF2Shortcut  from '@/hooks/useF2Shortcut';
 import { useToast } from '@/components/ui/toast';
 import { ANIMATIONS } from '@/constants';
 import Image from 'next/image';
+import FloatingLines from './FloatingLines';
 
 
 export default function Home() {
@@ -64,19 +65,35 @@ export default function Home() {
   useF2Shortcut(() => activateUnclaimedMeals());
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-slate-900 text-white overflow-hidden">
-      {/* Clock component at the top */}
-      <motion.div 
-        className="pt-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
-        <Clock overrideDate={manualDateOverride} />
-      </motion.div>
+    <div className="min-h-screen relative text-white overflow-hidden">
+      {/* FloatingLines full-screen background */}
+      <div className="fixed inset-0 z-0">
+        <FloatingLines
+          enabledWaves={["top","middle","bottom"]}
+          lineCount={[8, 6, 8]}
+          lineDistance={[12, 8, 10]}
+          bendRadius={4}
+          bendStrength={-0.35}
+          interactive={true}
+          parallax={true}
+          parallaxStrength={0.2}
+          linesGradient={['#e945f5', '#2f4bc0', '#e945f5']}
+        />
+      </div>
 
-      {/* Conditional main content */}
-      <div className="container my-5 mx-auto px-8 pb-20">
+      {/* Main content overlay */}
+      <div className="relative z-10 min-h-screen">
+        {/* Clock component at the top */}
+        <motion.div
+          className="pt-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          <Clock overrideDate={manualDateOverride} />
+        </motion.div>
+
+        <div className="container my-5 mx-auto px-8 pb-20">
         {/* Instructions or welcome message */}
         <AnimatePresence>
           {showInstructions && !error && (
@@ -146,9 +163,10 @@ export default function Home() {
           </div>
         )}
       </div>
+      </div>
 
       {/* Company branding footer */}
-      <div className="fixed bottom-0 left-0 w-full bg-black/30 backdrop-blur">
+      <div className="fixed bottom-0 left-0 w-full bg-black/50 backdrop-blur-md z-20">
         <div className="container mx-auto relative flex justify-between items-center px-8">
           {/* Title on the left */}
           <div className="text-2xl font-bold">Attendance-Based Meal System</div>
