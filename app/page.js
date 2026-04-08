@@ -109,8 +109,8 @@ export default function Home() {
                 animate={{ opacity: [0.6, 1, 0.6] }}
                 transition={{ repeat: Infinity, duration: 2 }}
               >
-                Please Tap Your ID Card In Claiming Your Free Meal.
-                <p style={{ fontWeight: "semibold" }}>Note: For activating unclaimed meals press F2.</p>
+                Please Tap Your RFID Card In Claiming Your Free Meal.
+                {/* <p style={{ fontWeight: "semibold" }}>Note: For activating unclaimed meals press F2.</p> */}
               </motion.h2>
             </motion.div>
           )}
@@ -144,7 +144,6 @@ export default function Home() {
                 employeeInfo={employeeInfo}
                 employeeStatus={employeeStatus} 
               />
-              
             </motion.div>
             
           )}

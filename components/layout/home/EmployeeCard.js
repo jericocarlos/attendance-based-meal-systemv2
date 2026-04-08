@@ -83,6 +83,18 @@ export default function EmployeeCard({ employeeInfo, attendanceLog, employeeStat
                 {formatTime(attendanceLog.time_claimed)}
               </p>
             </motion.div>
+
+            <motion.div 
+              className="p-6 rounded-xl bg-amber-500/20 border border-amber-500/30"
+              initial={{ x: 16, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.35, duration: 0.18, type: "spring", stiffness: 120 }}
+            >
+              <p className="text-2xl text-amber-300">UNCLAIMED MEALS</p>
+              <p className="text-5xl font-bold">
+                {attendanceLog.unclaimed_meals ?? 0}
+              </p>
+            </motion.div>
           </div>
         )}
       </motion.div>

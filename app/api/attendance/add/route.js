@@ -133,6 +133,59 @@ export async function POST(request) {
     if (!latestLog || !isSameDay) {
       // No log for that day → create a CLAIMED (use provided time if present)
       nextLogType = "CLAIMED";
+
+      // // Check for existing unclaimed meals before claiming
+      // const checkUnclaimedQuery = `
+      //   SELECT COUNT(*) as unclaimed_count
+      //   FROM unclaimed_freemeal_logs
+      //   WHERE ashima_id = ?
+      // `;
+      // const [unclaimedResult] = await executeQuery({
+      //   query: checkUnclaimedQuery,
+      //   values: [employee.ashima_id]
+      // });
+
+      // if (unclaimedResult.unclaimed_count > 0) {
+      //   // Get all unclaimed meals and insert them into freemeal_logs first
+      //   const getUnclaimedQuery = `
+      //     SELECT * FROM unclaimed_freemeal_logs
+      //     WHERE ashima_id = ?
+      //   `;
+      //   const unclaimedMeals = await executeQuery({
+      //     query: getUnclaimedQuery,
+      //     values: [employee.ashima_id]
+      //   });
+
+      //   // Insert each unclaimed meal into freemeal_logs
+      //   for (const meal of unclaimedMeals) {
+      //     const insertClaimedQuery = `
+      //       INSERT INTO freemeal_logs (date_claimed, ashima_id, log_type, time_claimed, meal_type)
+      //       VALUES (?, ?, 'CLAIMED', ?, ?)
+      //     `;
+      //     await executeQuery({
+      //       query: insertClaimedQuery,
+      //       values: [
+      //         meal.unclaim_date || new Date().toISOString().split('T')[0],
+      //         employee.ashima_id,
+      //         meal.time_claimed || new Date().toISOString().slice(0, 19).replace('T', ' '),
+      //         meal.meal_type || employee.person_type
+      //       ]
+      //     });
+      //   }
+      //   console.log(`✅ Inserted ${unclaimedResult.unclaimed_count} unclaimed meals into freemeal_logs for ${employee.ashima_id}`);
+
+      //   // Now delete unclaimed meals since they've been converted to claimed
+      //   const deleteUnclaimedQuery = `
+      //     DELETE FROM unclaimed_freemeal_logs
+      //     WHERE ashima_id = ?
+      //   `;
+      //   await executeQuery({
+      //     query: deleteUnclaimedQuery,
+      //     values: [employee.ashima_id]
+      //   });
+      //   console.log(`🗑️ Cleared ${unclaimedResult.unclaimed_count} unclaimed meals for ${employee.ashima_id}`);
+      // }
+
       if (timeParamRaw) {
         insertLogQuery = `
           INSERT INTO freemeal_logs (date_claimed, ashima_id, log_type, time_claimed, meal_type)
@@ -326,9 +379,21 @@ export async function POST(request) {
     `;
     const [attendanceLog] = await executeQuery({ query: mergedLogsQuery, values: [employee.ashima_id] });
 
+    // Get unclaimed meals count
+    const unclaimedMealsQuery = `
+      SELECT COUNT(*) as unclaimed_meals
+      FROM unclaimed_freemeal_logs
+      WHERE ashima_id = ?
+    `;
+    const [unclaimedData] = await executeQuery({ query: unclaimedMealsQuery, values: [employee.ashima_id] });
+    const unclaimedMeals = unclaimedData?.unclaimed_meals || 0;
+
     return NextResponse.json({
       employee,
-      attendanceLog,
+      attendanceLog: {
+        ...attendanceLog,
+        unclaimed_meals: unclaimedMeals
+      },
       logType: nextLogType
     });
   } catch (error) {
