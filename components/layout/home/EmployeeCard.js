@@ -84,7 +84,7 @@ export default function EmployeeCard({ employeeInfo, attendanceLog, employeeStat
               </p>
             </motion.div>
 
-            <motion.div 
+            {/* <motion.div 
               className="p-6 rounded-xl bg-amber-500/20 border border-amber-500/30"
               initial={{ x: 16, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -94,7 +94,7 @@ export default function EmployeeCard({ employeeInfo, attendanceLog, employeeStat
               <p className="text-5xl font-bold">
                 {attendanceLog.unclaimed_meals ?? 0}
               </p>
-            </motion.div>
+            </motion.div> */}
           </div>
         )}
       </motion.div>
