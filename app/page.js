@@ -75,7 +75,7 @@ export default function Home() {
 
   // useF2Shortcut(() => activateUnclaimedMeals());
 
-  useF2Shortcut(() => setIsManualDateOpen(true));
+  // useF2Shortcut(() => setIsManualDateOpen(true));
 
   return (
     <div className="min-h-screen relative text-white overflow-hidden">
@@ -123,7 +123,7 @@ export default function Home() {
                 transition={{ repeat: Infinity, duration: 2 }}
               >
                 Please Tap Your RFID Card In Claiming Your Free Meal.
-                <p style={{ fontWeight: "semibold" }}>Note: For Manual Date Change press F2.</p>
+                {/* <p style={{ fontWeight: "semibold" }}>Note: For Manual Date Change press F2.</p> */}
               </motion.h2>
             </motion.div>
           )}
@@ -208,7 +208,7 @@ export default function Home() {
       <ToastContainer />
 
       {/* Manual Date Modal */}
-      <Dialog open={isManualDateOpen} onOpenChange={setIsManualDateOpen}>
+      {/* <Dialog open={isManualDateOpen} onOpenChange={setIsManualDateOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Manual Date Change</DialogTitle>
@@ -265,7 +265,7 @@ export default function Home() {
             </button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       {/* HID Listener */}
       <HIDListener onTagRead={handleTagRead} />
