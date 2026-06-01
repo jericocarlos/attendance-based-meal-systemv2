@@ -48,8 +48,11 @@ const insertClaimedUnclaimedMeal = async (employee, claimedAt) => {
         values: [employee.ashima_id, claimedAt],
       });
     }
+
+    return insertResult.affectedRows > 0;
   } catch (error) {
     console.warn('Failed to insert claimed unclaimed meal log:', error.message || error);
+    return false;
   }
 };
 
@@ -77,6 +80,27 @@ const getUnclaimedMeals = async (employee) => {
     console.warn('Failed to fetch unclaimed meals:', error.message || error);
     return getFallbackMealCount(employee);
   }
+};
+
+const buildAttendanceResponse = async (employee, logType) => {
+  const mergedLogsQuery = `
+    SELECT id, log_type, time_claimed
+    FROM freemeal_logs
+    WHERE ashima_id = ?
+    ORDER BY time_claimed DESC
+    LIMIT 1
+  `;
+  const [attendanceLog] = await executeQuery({ query: mergedLogsQuery, values: [employee.ashima_id] });
+  const unclaimedMeals = await getUnclaimedMeals(employee);
+
+  return NextResponse.json({
+    employee,
+    attendanceLog: {
+      ...attendanceLog,
+      unclaimed_meals: unclaimedMeals,
+    },
+    logType
+  });
 };
 
 export async function POST(request) {
@@ -224,10 +248,12 @@ export async function POST(request) {
     let nextLogType = "CLAIMED";
     let insertLogQuery = "";
     let insertLogValues = [];
+    let handledUnclaimedMeal = false;
 
     const today = timeParamRaw ? new Date(timeParamRaw) : new Date();
     const claimedDate = new Date(latestLog?.time_claimed);
     const dateOnly = unclaimedMeal?.unclaim_date_only || getLocalDateOnly();
+    const shouldInsertCurrentMeal = !unclaimedMeal;
 
     console.log("🕒 Processing free meal log for:", employee.name, "on", today.toDateString());
 
@@ -236,46 +262,60 @@ export async function POST(request) {
       claimedDate.getMonth() === today.getMonth() &&
       claimedDate.getFullYear() === today.getFullYear();
 
-    // if (!latestLog || !isSameDay) {
-    //   // No log for that day → create a CLAIMED (use provided time if present)
-    //   nextLogType = "CLAIMED";
+    if (!unclaimedMeal && (!latestLog || !isSameDay)) {
+      // No log for that day → create a CLAIMED (use provided time if present)
+      nextLogType = "CLAIMED";
 
-    //   if (timeParamRaw) {
-    //     insertLogQuery = `
-    //       INSERT INTO freemeal_logs (date_claimed, ashima_id, log_type, time_claimed, meal_type)
-    //       VALUES (DATE(?), ?, 'CLAIMED', ?, ?)
-    //     `;
-    //     insertLogValues = [timeParamRaw, employee.ashima_id, timeParamRaw, employee.person_type];
-    //    // await attendanceConn.ping();
-    //     console.log('SAS DB connected 1');
-    //   } else {
-    //     insertLogQuery = `
-    //       INSERT INTO freemeal_logs (date_claimed, ashima_id, log_type, time_claimed, meal_type)
-    //       VALUES (CURDATE(), ?, 'CLAIMED', NOW(), ?)
-    //     `;
-    //     insertLogValues = [employee.ashima_id, employee.person_type];
-    //     //await attendanceConn.ping();
-    //     console.log('SAS DB connected 2');
-    //   }
+      if (timeParamRaw) {
+        insertLogQuery = `
+          INSERT INTO freemeal_logs (date_claimed, ashima_id, log_type, time_claimed, meal_type)
+          SELECT DATE(?), ?, 'CLAIMED', ?, ?
+          WHERE NOT EXISTS (
+            SELECT 1
+            FROM freemeal_logs
+            WHERE ashima_id = ?
+            AND DATE(date_claimed) = DATE(?)
+            AND log_type = 'CLAIMED'
+          )
+        `;
+        insertLogValues = [timeParamRaw, employee.ashima_id, timeParamRaw, employee.person_type, employee.ashima_id, timeParamRaw];
+       // await attendanceConn.ping();
+        console.log('SAS DB connected 1');
+      } else {
+        insertLogQuery = `
+          INSERT INTO freemeal_logs (date_claimed, ashima_id, log_type, time_claimed, meal_type)
+          SELECT CURDATE(), ?, 'CLAIMED', NOW(), ?
+          WHERE NOT EXISTS (
+            SELECT 1
+            FROM freemeal_logs
+            WHERE ashima_id = ?
+            AND DATE(date_claimed) = CURDATE()
+            AND log_type = 'CLAIMED'
+          )
+        `;
+        insertLogValues = [employee.ashima_id, employee.person_type, employee.ashima_id];
+        //await attendanceConn.ping();
+        console.log('SAS DB connected 2');
+      }
 
-    //   console.log("✅ Free meal claimed for the target date.");
-    // } else if (latestLog.log_type === "CLAIMED" && !latestLog.flag && isSameDay) {
-    //   nextLogType = "CLAIMED ALREADY";
-    //   const updateQuery = `
-    //     UPDATE freemeal_logs
-    //     SET log_type = 'CLAIMED ALREADY', flag = 1
-    //     WHERE id = ?
-    //   `;
-    //   await executeQuery({ query: updateQuery, values: [latestLog.id] });
-    //   console.log("ℹ️ Meal already claimed earlier on this date. Status updated.");
-    //   //await attendanceConn.ping();
-    //   console.log('SAS DB connected 3');
-    // } else if (latestLog.log_type === "CLAIMED ALREADY" && isSameDay) {
-    //   nextLogType = "Meal already claimed on that date. You cannot claim again.";
-    //   console.log("❌", nextLogType);
-    //   //await attendanceConn.ping();
-    //   console.log('SAS DB connected 4');
-    // }
+      console.log("✅ Free meal claimed for the target date.");
+    } else if (!unclaimedMeal && latestLog.log_type === "CLAIMED" && !latestLog.flag && isSameDay) {
+      nextLogType = "CLAIMED ALREADY";
+      const updateQuery = `
+        UPDATE freemeal_logs
+        SET log_type = 'CLAIMED ALREADY', flag = 1
+        WHERE id = ?
+      `;
+      await executeQuery({ query: updateQuery, values: [latestLog.id] });
+      console.log("ℹ️ Meal already claimed earlier on this date. Status updated.");
+      //await attendanceConn.ping();
+      console.log('SAS DB connected 3');
+    } else if (!unclaimedMeal && latestLog.log_type === "CLAIMED ALREADY" && isSameDay) {
+      nextLogType = "Meal already claimed on that date. You cannot claim again.";
+      console.log("❌", nextLogType);
+      //await attendanceConn.ping();
+      console.log('SAS DB connected 4');
+    }
 
     // Check if claiming for Sunday after Monday 12:00 PM (when report is sent)
     const claimDate = new Date(timeForQueries);
@@ -350,7 +390,12 @@ export async function POST(request) {
             }
           }
           
-          if (insertLogQuery) {
+          if (unclaimedMeal && nextLogType === 'CLAIMED') {
+            await insertClaimedUnclaimedMeal(employee, dateOnly);
+            handledUnclaimedMeal = true;
+          }
+
+          if (insertLogQuery && shouldInsertCurrentMeal) {
             await executeQuery({
               query: insertLogQuery,
               values: insertLogValues,
@@ -374,6 +419,10 @@ export async function POST(request) {
       attendanceConn.release();
     }
     // ******************************* Attendance Check End ************************************** //
+
+    if (handledUnclaimedMeal) {
+      return buildAttendanceResponse(employee, nextLogType);
+    }
     
     // Update meal_count or last_active as before
     if (employee.person_type === 'employee' && nextLogType === 'CLAIMED' && employee.meal_count > 0) {
@@ -397,10 +446,6 @@ export async function POST(request) {
         WHERE ashima_id = ?
       `;
       await executeQuery({ query: updateLastActiveQuery, values: [employee.ashima_id] });
-    }
-
-    if (unclaimedMeal && nextLogType === 'CLAIMED') {
-      await insertClaimedUnclaimedMeal(employee, dateOnly);
     }
 
     // Return the latest attendance entry for the (possibly manual) date
