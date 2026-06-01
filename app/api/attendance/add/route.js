@@ -2,6 +2,44 @@ import { NextResponse } from 'next/server';
 import { executeQuery, attendancePool } from '@/lib/db';
 // import { time } from 'zod';
 
+const getFallbackMealCount = (employee) => Number(employee.meal_count ?? 0);
+
+const markClaimedUnclaimedMeal = async (employee, claimedAt) => {
+  try {
+    await executeQuery({
+      query: `
+        UPDATE unclaimed_freemeal_logs
+        SET log_type = 'CLAIMED'
+        WHERE ashima_id = ?
+        AND DATE(unclaim_date) = DATE(?)
+        AND log_type = 'UNCLAIMED'
+      `,
+      values: [employee.ashima_id, claimedAt],
+    });
+  } catch (error) {
+    console.warn('Failed to update unclaimed meal log:', error.message || error);
+  }
+};
+
+const getUnclaimedMeals = async (employee) => {
+  try {
+    const [unclaimedMealCount] = await executeQuery({
+      query: `
+        SELECT COUNT(*) AS unclaimed_meals
+        FROM unclaimed_freemeal_logs
+        WHERE ashima_id = ?
+        AND log_type = 'UNCLAIMED'
+      `,
+      values: [employee.ashima_id],
+    });
+
+    return Number(unclaimedMealCount?.unclaimed_meals ?? getFallbackMealCount(employee));
+  } catch (error) {
+    console.warn('Failed to fetch unclaimed meals:', error.message || error);
+    return getFallbackMealCount(employee);
+  }
+};
+
 export async function POST(request) {
   try {
     const { rfid_tag, ashima_id, time_claimed } = await request.json();
@@ -277,6 +315,7 @@ export async function POST(request) {
         WHERE ashima_id = ?
       `;
       await executeQuery({ query: updateMealCountQuery, values: [employee.ashima_id] });
+      employee.meal_count -= 1;
     }else if (employee.person_type === 'employee' && employee.meal_count == 0) {
       // throw error if meal_count is zero
       return NextResponse.json(
@@ -292,6 +331,10 @@ export async function POST(request) {
       await executeQuery({ query: updateLastActiveQuery, values: [employee.ashima_id] });
     }
 
+    if (nextLogType === 'CLAIMED') {
+      await markClaimedUnclaimedMeal(employee, timeForQueries);
+    }
+
     // Return the latest attendance entry for the (possibly manual) date
     const mergedLogsQuery = `
       SELECT id, log_type, time_claimed
@@ -301,11 +344,13 @@ export async function POST(request) {
       LIMIT 1
     `;
     const [attendanceLog] = await executeQuery({ query: mergedLogsQuery, values: [employee.ashima_id] });
+    const unclaimedMeals = await getUnclaimedMeals(employee);
 
     return NextResponse.json({
       employee,
       attendanceLog: {
         ...attendanceLog,
+        unclaimed_meals: unclaimedMeals,
       },
       logType: nextLogType
     });
