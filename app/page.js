@@ -20,7 +20,6 @@ import {
 import { useToast } from '@/components/ui/toast';
 import { ANIMATIONS } from '@/constants';
 import Image from 'next/image';
-import FloatingLines from './FloatingLines';
 
 
 export default function Home() {
@@ -78,24 +77,8 @@ export default function Home() {
   // useF2Shortcut(() => setIsManualDateOpen(true));
 
   return (
-    <div className="min-h-screen relative text-white overflow-hidden">
-      {/* FloatingLines full-screen background */}
-      <div className="fixed inset-0 z-0">
-        <FloatingLines
-          enabledWaves={["top","middle","bottom"]}
-          lineCount={[8, 6, 8]}
-          lineDistance={[12, 8, 10]}
-          bendRadius={4}
-          bendStrength={-0.35}
-          interactive={true}
-          parallax={true}
-          parallaxStrength={0.2}
-          linesGradient={['#e945f5', '#2f4bc0', '#e945f5']}
-        />
-      </div>
-
-      {/* Main content overlay */}
-      <div className="relative z-10 min-h-screen">
+    <div className="min-h-screen relative text-white overflow-hidden bg-slate-950">
+      <div className="relative min-h-screen">
         {/* Clock component at the top */}
         <motion.div
           className="pt-8"
