@@ -347,15 +347,15 @@ export async function POST(request) {
         SELECT 1
         FROM attendance_logs
         WHERE ashima_id = ?
-          AND DATE(in_time) = ?
+          AND DATE(in_time) IN (?, DATE_SUB(?, INTERVAL 1 DAY))
         LIMIT 1
         `,
-        [employee.ashima_id, dateOnly]
+        [employee.ashima_id, dateOnly, dateOnly]
       );
 
-      console.log(`🔍 Attendance check for ${employee.ashima_id} on ${dateOnly}:`, rows.length > 0 ? "Found attendance record." : "No attendance record found.");
+      console.log(`🔍 Attendance check for ${employee.ashima_id} on ${dateOnly} or previous date:`, rows.length > 0 ? "Found attendance record." : "No attendance record found.");
       if (rows.length === 0) {
-        const errorMessage = "No attendance record found for the selected date. Free meals can only be claimed by attendees.";
+        const errorMessage = "No attendance record found for the selected date or previous date. Free meals can only be claimed by attendees.";
         console.log("❌", errorMessage);
         return NextResponse.json(
           { error: errorMessage },
