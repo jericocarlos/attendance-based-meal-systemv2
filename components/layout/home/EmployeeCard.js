@@ -9,6 +9,18 @@ export default function EmployeeCard({ employeeInfo, attendanceLog, employeeStat
     return dayjs(timeString).format('h:mm A');
   };
 
+  const formatDate = (timeString) => {
+    if (!timeString) return 'N/A';
+    return dayjs(timeString).format('MM/DD/YYYY');
+  };
+
+  const mealRecordRows = attendanceLog?.freemeal_logs?.length
+    ? attendanceLog.freemeal_logs.map((log) => [
+        formatDate(log.time_claimed || log.date_claimed),
+        log.log_type || 'N/A',
+      ])
+    : [[formatDate(attendanceLog?.time_claimed), employeeStatus || attendanceLog?.log_type || 'N/A']];
+
   // const getWelcomeMessage = () => {
   //   if (employeeStatus === 'Clocked In') {
   //     return `Welcome, ${employeeInfo.name.split(' ')[0]}!`;
@@ -90,10 +102,32 @@ export default function EmployeeCard({ employeeInfo, attendanceLog, employeeStat
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.35, duration: 0.18, type: "spring", stiffness: 120 }}
             >
-              <p className="text-2xl text-amber-300">UNCLAIMED MEALS</p>
-              <p className="text-5xl font-bold">
-                {attendanceLog.unclaimed_meals ?? 0}
-              </p>
+              <div className="max-h-96 overflow-y-auto pr-2">
+                <table className="w-full table-fixed border-collapse text-left">
+                  <thead>
+                    <tr className="border-b border-amber-500/30">
+                      <th className="w-1/2 pb-3 pr-4 text-lg font-semibold text-amber-300">
+                        Date
+                      </th>
+                      <th className="w-1/2 pb-3 text-lg font-semibold text-amber-300">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mealRecordRows.map(([date, status], index) => (
+                      <tr key={`${date}-${status}-${index}`} className="border-b border-amber-500/20 last:border-b-0">
+                        <td className="w-1/2 py-2 pr-4 text-lg font-bold">
+                          {date}
+                        </td>
+                        <td className="w-1/2 py-2 text-lg font-bold">
+                          {status}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </motion.div>
           </div>
         )}

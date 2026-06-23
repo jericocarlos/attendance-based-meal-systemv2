@@ -82,6 +82,31 @@ const getUnclaimedMeals = async (employee) => {
   }
 };
 
+const getFreemealLogs = async (ashimaId) => {
+  return executeQuery({
+    query: `
+      SELECT id, log_type, date_claimed, time_claimed
+      FROM (
+        SELECT
+          id,
+          log_type,
+          date_claimed,
+          time_claimed,
+          ROW_NUMBER() OVER (
+            PARTITION BY DATE(date_claimed)
+            ORDER BY time_claimed DESC, id DESC
+          ) AS row_number
+        FROM freemeal_logs
+        WHERE ashima_id = ?
+        AND YEARWEEK(date_claimed, 1) = YEARWEEK(CURDATE(), 1)
+      ) weekly_logs
+      WHERE row_number = 1
+      ORDER BY time_claimed DESC
+    `,
+    values: [ashimaId],
+  });
+};
+
 const buildAttendanceResponse = async (employee, logType) => {
   const mergedLogsQuery = `
     SELECT id, log_type, time_claimed
@@ -92,12 +117,14 @@ const buildAttendanceResponse = async (employee, logType) => {
   `;
   const [attendanceLog] = await executeQuery({ query: mergedLogsQuery, values: [employee.ashima_id] });
   const unclaimedMeals = await getUnclaimedMeals(employee);
+  const freemealLogs = await getFreemealLogs(employee.ashima_id);
 
   return NextResponse.json({
     employee,
     attendanceLog: {
       ...attendanceLog,
       unclaimed_meals: unclaimedMeals,
+      freemeal_logs: freemealLogs,
     },
     logType
   });
@@ -458,12 +485,14 @@ export async function POST(request) {
     `;
     const [attendanceLog] = await executeQuery({ query: mergedLogsQuery, values: [employee.ashima_id] });
     const unclaimedMeals = await getUnclaimedMeals(employee);
+    const freemealLogs = await getFreemealLogs(employee.ashima_id);
 
     return NextResponse.json({
       employee,
       attendanceLog: {
         ...attendanceLog,
         unclaimed_meals: unclaimedMeals,
+        freemeal_logs: freemealLogs,
       },
       logType: nextLogType
     });
