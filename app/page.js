@@ -21,6 +21,7 @@ import { useToast } from '@/components/ui/toast';
 import { ANIMATIONS } from '@/constants';
 import Image from 'next/image';
 
+const ANNOUNCEMENT_MESSAGE = 'ANNOUNCEMENT: Please tap your RFID card once for each unclaimed meals being claimed before leaving the counter thank you!.';
 
 export default function Home() {
   const {
@@ -106,7 +107,6 @@ export default function Home() {
                 transition={{ repeat: Infinity, duration: 2 }}
               >
                 Please Tap Your RFID Card In Claiming Your Free Meal.
-                {/* <p style={{ fontWeight: "semibold" }}>Note: For Manual Date Change press F2.</p> */}
               </motion.h2>
             </motion.div>
           )}
@@ -160,95 +160,52 @@ export default function Home() {
       </div>
       </div>
 
-      {/* Company branding footer */}
-      <div className="fixed bottom-0 left-0 w-full bg-black/50 backdrop-blur-md z-20">
-        <div className="container mx-auto relative flex justify-between items-center px-8">
-          {/* Title on the left */}
-          <div className="text-2xl font-bold">Attendance-Based Meal System</div>
-          
-          {/* Spinner absolutely centered */}
-          {loading && (
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center z-10">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-cyan-500"></div>
-            </div>
-          )}
+      <div className="fixed bottom-0 left-0 z-30 w-full">
+        <motion.div
+          className="w-full overflow-hidden border-y border-cyan-400/40 bg-cyan-950/90 py-3 shadow-lg shadow-cyan-950/30 backdrop-blur-md"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          role="status"
+          aria-label={ANNOUNCEMENT_MESSAGE}
+        >
+          <div className="flex w-max animate-announcement whitespace-nowrap text-2xl font-bold uppercase tracking-normal text-yellow-200">
+            <span className="px-10">{ANNOUNCEMENT_MESSAGE}</span>
+            <span className="px-10" aria-hidden="true">{ANNOUNCEMENT_MESSAGE}</span>
+            <span className="px-10" aria-hidden="true">{ANNOUNCEMENT_MESSAGE}</span>
+          </div>
+        </motion.div>
 
-          {/* Logo on the right */}
-          <div>
-            <Image
-              src="/ew-logo-full.png" 
-              alt="EWBPO Logo" 
-              width={300}
-              height={53}
-              className="object-contain"
-              priority
-            />
+        {/* Company branding footer */}
+        <div className="w-full bg-black/50 backdrop-blur-md">
+          <div className="container mx-auto relative flex justify-between items-center px-8">
+            {/* Title on the left */}
+            <div className="text-2xl font-bold">Attendance-Based Meal System</div>
+            
+            {/* Spinner absolutely centered */}
+            {loading && (
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center z-10">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-cyan-500"></div>
+              </div>
+            )}
+
+            {/* Logo on the right */}
+            <div>
+              <Image
+                src="/ew-logo-full.png" 
+                alt="EWBPO Logo" 
+                width={300}
+                height={53}
+                className="object-contain"
+                priority
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Toast container */}
       <ToastContainer />
-
-      {/* Manual Date Modal */}
-      {/* <Dialog open={isManualDateOpen} onOpenChange={setIsManualDateOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Manual Date Change</DialogTitle>
-            <DialogDescription className="text-red-500">
-              Note: When changing date it must be the previous date and not the future date.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="mt-4">
-            <label className="block mb-2 font-medium">Select Previous Date:</label>
-            <input
-              name="manualDate"
-              type="date"
-              value={manualDate}
-              onChange={(e) => setManualDate(e.target.value)}
-              className="w-full rounded border px-3 py-2 bg-slate-800 text-white"
-            />
-          </div>
-
-          <DialogFooter>
-            <button
-              type="button"
-              className="px-4 py-2 rounded bg-gray-200 text-black"
-              onClick={() => setIsManualDateOpen(false)}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="ml-3 px-4 py-2 rounded bg-cyan-500 text-white"
-              onClick={async () => {
-                try {
-                  const payloadDate = manualDate ? manualDate.replace('T', ' ') : null;
-                  const result = await submitManualDate(payloadDate);
-
-                  if (result?.logType === 'OVERRIDE_SET') {
-                    if (payloadDate) {
-                      success(`Current date set: ${formatDateTime(payloadDate)}`);
-                    } else {
-                      success('Current date cleared');
-                    }
-                  } else {
-                    success(`Manual date saved — ${result.logType}`);
-                  }
-
-                  setIsManualDateOpen(false);
-                  setManualDate('');
-                } catch (err) {
-                  toastError(err.message || 'Failed to submit manual date.');
-                }
-              }}
-            >
-              Confirm
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
 
       {/* HID Listener */}
       <HIDListener onTagRead={handleTagRead} />
