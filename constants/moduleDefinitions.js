@@ -8,7 +8,8 @@ import {
   Database, 
   UserCog,
   Cog,
-  Shield 
+  Shield, 
+  CogIcon
 } from "lucide-react";
 
 export const MODULE_DEFINITIONS = {
@@ -75,5 +76,13 @@ export const MODULE_DEFINITIONS = {
     color: 'red',
     description: 'Manage user permissions',
     ariaLabel: 'Navigate to role permissions'
+  },
+  announcements: {
+    name: 'Announcements',
+    href: '/admin/announcements',
+    icon: <CogIcon className="h-6 w-6" />,
+    color: 'red',
+    description: 'Manage announcements',
+    ariaLabel: 'Navigate to announcements'
   }
 };

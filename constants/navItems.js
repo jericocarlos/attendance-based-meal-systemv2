@@ -1,4 +1,4 @@
-import { Users, Clipboard, UserCog, Calendar, Database, Shield } from "lucide-react";
+import { Users, Clipboard, UserCog, Calendar, Database, Shield, CogIcon } from "lucide-react";
 
 export const NAV_ITEMS = {
   // Super Admin can access everything
@@ -43,6 +43,11 @@ export const NAV_ITEMS = {
       href: '/admin/role-permissions',
       icon: <Shield className="h-[18px] w-[18px]" />,
     },
+    {
+      name: 'Announcements',
+      href: '/admin/announcements',
+      icon: <CogIcon className="h-[18px] w-[18px]" />,
+    },
   ],
   // Admin can access everything except Role Permissions
   admin: [
@@ -80,6 +85,11 @@ export const NAV_ITEMS = {
       name: 'Account Logins',
       href: '/admin/account-logins',
       icon: <Users className="h-[18px] w-[18px]" />,
+    },
+    {
+      name: 'Announcements',
+      href: '/admin/announcements',
+      icon: <CogIcon className="h-[18px] w-[18px]" />,
     },
   ],
   // HR only gets Free Meal Logs and Employees Management
