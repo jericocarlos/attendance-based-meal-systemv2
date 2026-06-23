@@ -1,4 +1,4 @@
-# ATTENDANCE-BASED MEAL SYSTEM
+# ATTENDANCE-BASED MEAL SYSTEM VERSION 2
 
 The integration of the Free Meal Monitoring System and Security Attendance System enables a unified platform where employee attendance data is securely validated and directly used to determine free meal eligibility. By leveraging RFID-based attendance verification, the system ensures that only authorized and present employees can claim meals, preventing misuse and improving operational efficiency.
 
