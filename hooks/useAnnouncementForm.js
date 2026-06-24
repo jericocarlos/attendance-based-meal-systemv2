@@ -15,7 +15,6 @@ import { useForm } from 'react-hook-form';
  */
 export const useAnnouncementForm = (announcement, open, onSubmit) => {
   // Form state
-  const [imagePreview, setImagePreview] = useState(null);
   const [activeTab, setActiveTab] = useState('details');
   const [submissionError, setSubmissionError] = useState(null);
 
@@ -68,70 +67,11 @@ export const useAnnouncementForm = (announcement, open, onSubmit) => {
   }, [setValue]);
 
   /**
-   * Handles image file selection and preview
-   */
-  // const handleImageChange = useCallback((event) => {
-  //   const file = event.target.files?.[0];
-  //   if (!file) return;
-
-  //   // Validate file type
-  //   if (!file.type.startsWith('image/')) {
-  //     setSubmissionError('Please select a valid image file.');
-  //     return;
-  //   }
-
-  //   // Validate file size (max 5MB)
-  //   if (file.size > 5 * 1024 * 1024) {
-  //     setSubmissionError('Image file size must be less than 5MB.');
-  //     return;
-  //   }
-
-  //   const reader = new FileReader();
-  //   reader.onload = (e) => {
-  //     setImagePreview(e.target.result);
-  //     setSubmissionError(null);
-  //   };
-  //   reader.onerror = () => {
-  //     setSubmissionError('Failed to read image file.');
-  //   };
-  //   reader.readAsDataURL(file);
-  // }, []);
-
-  /**
-   * Validates form data before submission
-   */
-  // const validateFormData = useCallback((data) => {
-  //   // Clear previous errors
-  //   clearErrors();
-  //   setSubmissionError(null);
-
-  //   // Validate required fields
-  //   if (!data.title?.trim()) {
-  //     setError('title', { type: 'manual', message: 'Title is required' });
-  //     setActiveTab('details');
-  //     return false;
-  //   }
-
-  //   if (!data.name?.trim()) {
-  //     setError('announcement', { type: 'manual', message: 'Announcement is required' });
-  //     setActiveTab('details');
-  //     return false;
-  //   }
-
-  //   return true;
-  // }, [setError, clearErrors, setActiveTab]);
-
-  /**
    * Handles form submission with validation
    */
   const handleFormSubmit = useCallback(async (data) => {
     try {
       setSubmissionError(null);
-
-      // Validate form data
-      // if (!validateFormData(data)) {
-      //   return;
-      // }
 
       // Process form data
       const processedData = {

@@ -206,8 +206,6 @@ export default function AnnouncementManagementPage() {
           open={isFormDialogOpen}
           onOpenChange={setIsFormDialogOpen}
           announcement={currentAnnouncement}
-          departments={departments}
-          positions={positions}
           onSubmit={handleAnnouncementSubmit}
           isLoadingOptions={loadingMetadata}
           isSubmitting={submitting}

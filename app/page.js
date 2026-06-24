@@ -7,7 +7,7 @@ import EmployeeCard from '@/components/layout/home/EmployeeCard';
 import EmployeePhoto from '@/components/layout/home/EmployeePhoto';
 import ErrorDisplay from '@/components/layout/home/ErrorDisplay';
 import useAttendance from '@/hooks/useAttendance';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useF2Shortcut  from '@/hooks/useF2Shortcut';
 import {
   Dialog,
@@ -20,8 +20,6 @@ import {
 import { useToast } from '@/components/ui/toast';
 import { ANIMATIONS } from '@/constants';
 import Image from 'next/image';
-
-const ANNOUNCEMENT_MESSAGE = 'ANNOUNCEMENT: Please tap your RFID card once for each unclaimed meals being claimed before leaving the counter thank you!.';
 
 export default function Home() {
   const {
@@ -39,7 +37,32 @@ export default function Home() {
 
   const [isManualDateOpen, setIsManualDateOpen] = useState(false);
   const [manualDate, setManualDate] = useState('');
+  const [announcementMessage, setAnnouncementMessage] = useState('Welcome! Announcements will appear here.');
   const { ToastContainer, success, error: toastError } = useToast();
+
+  // Fetch announcement message from database
+  useEffect(() => {
+    const fetchAnnouncement = async () => {
+      try {
+        const response = await fetch('/api/admin/announcements?limit=1&status=enabled');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.data && data.data.length > 0) {
+            const announcement = data.data[0];
+            // Combine title and announcement text for display
+            const fullMessage = `${announcement.announcement}`;
+            setAnnouncementMessage(fullMessage);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch announcement:', err);
+        // Keep default announcement if fetch fails
+      }
+    };
+
+    fetchAnnouncement();
+  }, []);
+
   // Format helper for the override and display
   const formatDateTime = (dateString) => {
     if (!dateString) return '';
@@ -167,12 +190,12 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
           role="status"
-          aria-label={ANNOUNCEMENT_MESSAGE}
+          aria-label={announcementMessage}
         >
           <div className="flex w-max animate-announcement whitespace-nowrap text-2xl font-bold uppercase tracking-normal text-yellow-200">
-            <span className="px-10">{ANNOUNCEMENT_MESSAGE}</span>
-            <span className="px-10" aria-hidden="true">{ANNOUNCEMENT_MESSAGE}</span>
-            <span className="px-10" aria-hidden="true">{ANNOUNCEMENT_MESSAGE}</span>
+            <span className="px-10">{announcementMessage}</span>
+            <span className="px-10" aria-hidden="true">{announcementMessage}</span>
+            <span className="px-10" aria-hidden="true">{announcementMessage}</span>
           </div>
         </motion.div>
 

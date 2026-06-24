@@ -10,9 +10,7 @@
  * <AnnouncementFormDialog
  *   open={isOpen}
  *   onOpenChange={setIsOpen}
- *   intern={selectedIntern}
- *   departments={departments}
- *   positions={positions}
+ *   announcement={selectedAnnouncement}
  *   onSubmit={handleSubmit}
  *   isLoadingOptions={loading}
  *   isSubmitting={submitting}
@@ -42,9 +40,7 @@ import FormErrorDisplay from "./FormErrorDisplay";
  * @param {Object} props - Component props
  * @param {boolean} props.open - Dialog open state
  * @param {Function} props.onOpenChange - Dialog state change handler
- * @param {Object|null} props.intern - Intern data for editing (null for new)
- * @param {Array} props.departments - Available departments
- * @param {Array} props.positions - Available positions  
+ * @param {Object|null} props.announcement - Announcement data for editing (null for new)
  * @param {Function} props.onSubmit - Form submission handler
  * @param {boolean} props.isLoadingOptions - Loading state for form options
  * @param {boolean} props.isSubmitting - External submission loading state
@@ -65,10 +61,6 @@ const AnnouncementFormDialog = memo(({
     errors,
     isSubmitting: formIsSubmitting,
     status,
-    isDiscontinued,
-    imagePreview,
-    handleImageChange,
-    removeImage,
     activeTab,
     setActiveTab,
     submissionError,
