@@ -54,8 +54,8 @@ const AnnouncementDetailsTab = memo(({
               {...register('title', { 
                 required: 'Title is required',
                 pattern: {
-                  value: /^[A-Za-z0-9-_]+$/,
-                  message: 'Title can only contain letters, numbers, hyphens, and underscores'
+                  value: /^[A-Za-z0-9\- _]+$/,
+                  message: 'Title can only contain letters, numbers, spaces, hyphens, and underscores'
                 }
               })}
             />
