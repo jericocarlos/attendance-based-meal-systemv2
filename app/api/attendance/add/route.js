@@ -14,6 +14,27 @@ const getLocalTimeOnly = (date = new Date()) => {
   return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 };
 
+const isClaimInPreviousWeekAfterReportSent = (claimDate, now = new Date()) => {
+  const currentWeekStart = new Date(now);
+  const day = currentWeekStart.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const diffToMonday = (day + 6) % 7; // days to subtract to reach Monday
+  currentWeekStart.setDate(currentWeekStart.getDate() - diffToMonday);
+  currentWeekStart.setHours(0, 0, 0, 0);
+
+  const previousWeekStart = new Date(currentWeekStart);
+  previousWeekStart.setDate(previousWeekStart.getDate() - 7);
+
+  const previousWeekEnd = new Date(currentWeekStart);
+  previousWeekEnd.setMilliseconds(previousWeekEnd.getMilliseconds() - 1);
+
+  const reportCutoff = new Date(currentWeekStart);
+  reportCutoff.setHours(12, 0, 0, 0);
+
+  return now >= reportCutoff
+    && claimDate >= previousWeekStart
+    && claimDate <= previousWeekEnd;
+};
+
 const insertClaimedUnclaimedMeal = async (employee, claimedAt) => {
   try {
     const currentTime = getLocalTimeOnly();
@@ -344,24 +365,15 @@ export async function POST(request) {
       console.log('SAS DB connected 4');
     }
 
-    // Check if claiming for Sunday after Monday 12:00 PM (when report is sent)
+    // Prevent claims for the previous week after the HR report cutoff on Monday 12:00 PM.
     const claimDate = new Date(timeForQueries);
-    const dayOfWeek = claimDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    
-    if (dayOfWeek === 0) { // Claiming for a Sunday
-      const now = new Date();
-      const nextMonday = new Date(claimDate);
-      nextMonday.setDate(nextMonday.getDate() + 1); // Monday after the Sunday
-      nextMonday.setHours(12, 0, 0, 0); // Monday 12:00 PM
-      
-      if (now >= nextMonday) {
-        const errorMessage = "Free meal cannot be claimed due to report for previous week already sent to HR.";
-        console.log("❌", errorMessage);
-        return NextResponse.json(
-          { error: errorMessage },
-          { status: 400 }
-        );
-      }
+    if (isClaimInPreviousWeekAfterReportSent(claimDate)) {
+      const errorMessage = "Free meal cannot be claimed due to report for the previous week already sent to HR.";
+      console.log("❌", errorMessage);
+      return NextResponse.json(
+        { error: errorMessage },
+        { status: 400 }
+      );
     }
 
     // ******************************* Attendance Check Start ************************************** //
