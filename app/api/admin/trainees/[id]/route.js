@@ -21,7 +21,14 @@ function decodeBase64ToBinary(base64String) {
 // PUT: Update an Existing Intern
 export async function PUT(req, context) {
   try {
-    const { id } = await context.params; // 👈 Add await here
+    const params = await context.params;
+    const id = params?.id;
+    if (!id) {
+      return NextResponse.json(
+        { message: "Trainee ID is required." },
+        { status: 400 }
+      );
+    }
     const body = await req.json();
 
     const {
@@ -36,42 +43,61 @@ export async function PUT(req, context) {
       removePhoto
     } = body;
 
-    let binaryPhoto = null;
-    if (status === "discontinued" || removePhoto) {
-      binaryPhoto = null;
-    } else if (photo) {
-      binaryPhoto = decodeBase64ToBinary(photo);
-    }
-
     const updateFields = [];
     const values = [];
+    const isDiscontinued = status === "discontinued";
 
-    updateFields.push("ashima_id = ?");
-    values.push(ashima_id);
-
-    updateFields.push("name = ?");
-    values.push(name);
-
-    updateFields.push("department_id = ?");
-    values.push(department_id);
-
-    updateFields.push("position_id = ?");
-    values.push(position_id);
-
-    updateFields.push("rfid_tag = ?");
-    values.push(status === "discontinued" || !rfid_tag ? null : rfid_tag);
-
-    if (status === "discontinued" || removePhoto || photo) {
-      updateFields.push("photo = ?");
-      values.push(binaryPhoto);
+    if (ashima_id !== undefined) {
+      updateFields.push("ashima_id = ?");
+      values.push(ashima_id ?? null);
     }
 
-    updateFields.push("status = ?");
-    values.push(status);
+    if (name !== undefined) {
+      updateFields.push("name = ?");
+      values.push(name ?? null);
+    }
 
-    updateFields.push("meal_expiration_date = ?");
-    values.push(meal_expiration_date);
+    if (department_id !== undefined) {
+      updateFields.push("department_id = ?");
+      values.push(department_id ?? null);
+    }
 
+    if (position_id !== undefined) {
+      updateFields.push("position_id = ?");
+      values.push(position_id ?? null);
+    }
+
+    if (isDiscontinued || rfid_tag !== undefined) {
+      updateFields.push("rfid_tag = ?");
+      values.push(isDiscontinued ? null : rfid_tag ?? null);
+    }
+
+    if (isDiscontinued || removePhoto || photo !== undefined) {
+      updateFields.push("photo = ?");
+      values.push(
+        isDiscontinued || removePhoto ? null : decodeBase64ToBinary(photo)
+      );
+    }
+
+    if (status !== undefined) {
+      updateFields.push("status = ?");
+      values.push(status ?? null);
+    }
+
+    if (meal_expiration_date !== undefined) {
+      updateFields.push("meal_expiration_date = ?");
+      values.push(meal_expiration_date ?? null);
+    }
+
+    if (updateFields.length === 0) {
+      return NextResponse.json(
+        { message: "At least one trainee field is required for an update." },
+        { status: 400 }
+      );
+    }
+
+    // mysql2 rejects undefined parameters; all optional values above are
+    // omitted or normalized to null, and the route ID is validated above.
     values.push(id);
 
     const updateQuery = `

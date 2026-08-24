@@ -4,6 +4,13 @@ import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
+const getPositiveInteger = (value, fallback, maximum) => {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 && parsed <= maximum
+    ? parsed
+    : fallback;
+};
+
 // GET: List all accounts with filtering, search, and pagination
 export async function GET(request) {
   const session = await getServerSession(authOptions);
@@ -17,8 +24,8 @@ export async function GET(request) {
     // Extract query parameters
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const page = getPositiveInteger(searchParams.get('page'), 1, 1000000);
+    const limit = getPositiveInteger(searchParams.get('limit'), 10, 100);
     const offset = (page - 1) * limit;
     const role = searchParams.get('role') || '';
 
@@ -62,12 +69,12 @@ export async function GET(request) {
       FROM admin_users 
       ${whereClause} 
       ORDER BY name
-      LIMIT ? OFFSET ?
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
     const accounts = await executeQuery({
       query,
-      values: [...values, limit, offset]
+      values
     });
 
     // Format accounts - no need to change role names since they match in DB and UI

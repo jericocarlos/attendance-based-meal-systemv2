@@ -106,23 +106,24 @@ const getUnclaimedMeals = async (employee) => {
 const getFreemealLogs = async (ashimaId) => {
   return executeQuery({
     query: `
-      SELECT id, log_type, date_claimed, time_claimed
-      FROM (
-        SELECT
-          id,
-          log_type,
-          date_claimed,
-          time_claimed,
-          ROW_NUMBER() OVER (
-            PARTITION BY DATE(date_claimed)
-            ORDER BY time_claimed DESC, id DESC
-          ) AS row_number
-        FROM freemeal_logs
-        WHERE ashima_id = ?
-        AND YEARWEEK(date_claimed, 1) = YEARWEEK(CURDATE(), 1)
-      ) weekly_logs
-      WHERE row_number = 1
-      ORDER BY time_claimed DESC
+      SELECT current_log.id, current_log.log_type, current_log.date_claimed, current_log.time_claimed
+      FROM freemeal_logs AS current_log
+      WHERE current_log.ashima_id = ?
+      AND YEARWEEK(current_log.date_claimed, 1) = YEARWEEK(CURDATE(), 1)
+      AND NOT EXISTS (
+        SELECT 1
+        FROM freemeal_logs AS newer_log
+        WHERE newer_log.ashima_id = current_log.ashima_id
+        AND DATE(newer_log.date_claimed) = DATE(current_log.date_claimed)
+        AND (
+          newer_log.time_claimed > current_log.time_claimed
+          OR (
+            newer_log.time_claimed = current_log.time_claimed
+            AND newer_log.id > current_log.id
+          )
+        )
+      )
+      ORDER BY current_log.time_claimed DESC, current_log.id DESC
     `,
     values: [ashimaId],
   });

@@ -6,12 +6,19 @@ function decodeBase64ToBinary(base64String) {
   return Buffer.from(base64String.replace(/^data:image\/\w+;base64,/, ""), "base64");
 }
 
+function getPositiveInteger(value, fallback, maximum) {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 && parsed <= maximum
+    ? parsed
+    : fallback;
+}
+
 // GET: Fetch Interns with Search, Filters, and Pagination
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const page = getPositiveInteger(searchParams.get("page"), 1, 1000000);
+    const limit = getPositiveInteger(searchParams.get("limit"), 10, 100);
     const search = searchParams.get("search") || "";
     const department = searchParams.get("department") || "";
     const position = searchParams.get("position") || "";
@@ -50,7 +57,7 @@ export async function GET(req) {
       ${whereClause}
       ORDER BY 
         i.id DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
     const values = [
@@ -59,8 +66,6 @@ export async function GET(req) {
       ...(department ? [department] : []),
       ...(position ? [position] : []),
       ...(includeStatusFilter ? [status] : []),
-      limit,
-      offset,
     ];
 
     const interns = await executeQuery({ query, values });

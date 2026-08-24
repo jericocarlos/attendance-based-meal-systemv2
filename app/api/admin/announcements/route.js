@@ -1,12 +1,19 @@
 import { executeQuery } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+const getPositiveInteger = (value, fallback, maximum) => {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 && parsed <= maximum
+    ? parsed
+    : fallback;
+};
+
 // GET: Fetch Announcements with Search, Filters, and Pagination
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const page = getPositiveInteger(searchParams.get("page"), 1, 1000000);
+    const limit = getPositiveInteger(searchParams.get("limit"), 10, 100);
     const search = searchParams.get("search") || "";
     const status = searchParams.get("status") || "";
     const offset = (page - 1) * limit;
@@ -31,12 +38,12 @@ export async function GET(req) {
       FROM announcement
       ${whereClause}
       ORDER BY id DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
     const announcements = await executeQuery({
       query,
-      values: [...values, limit, offset],
+      values,
     });
 
     const countQuery = `

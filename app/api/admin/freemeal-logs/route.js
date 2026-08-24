@@ -1,14 +1,21 @@
 import { executeQuery } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+const getPositiveInteger = (value, fallback, maximum) => {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 && parsed <= maximum
+    ? parsed
+    : fallback;
+};
+
 // Fetch free meal logs with employee details
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
 
     // Parse query parameters
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '100'); // Change default to 100
+    const page = getPositiveInteger(searchParams.get('page'), 1, 1000000);
+    const limit = getPositiveInteger(searchParams.get('limit'), 100, 100);
     const offset = (page - 1) * limit;
     const search = searchParams.get('search') || '';
     const logType = searchParams.get('log_type') || 'ALL';
@@ -47,9 +54,6 @@ export async function GET(req) {
     const whereClause = conditions.length > 0 
       ? "WHERE " + conditions.join(" AND ") 
       : "";
-
-    // Add pagination values
-    values.push(limit, offset);
 
     // Build the UNION query used for both listing and counting
     const unionQuery = `
@@ -110,7 +114,7 @@ export async function GET(req) {
       ) AS u
       ${whereClause}
       ORDER BY time_claimed DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
     const logs = await executeQuery({ query, values });
@@ -119,7 +123,7 @@ export async function GET(req) {
     const countConditions = conditions.length > 0 
       ? "WHERE " + conditions.join(" AND ") 
       : "";
-    const countValues = values.slice(0, values.length - 2); // Remove limit and offset
+    const countValues = values;
 
     const countQuery = `
       SELECT COUNT(*) as total

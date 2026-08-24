@@ -1,14 +1,21 @@
 import { executeQuery } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+const getPositiveInteger = (value, fallback, maximum) => {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 && parsed <= maximum
+    ? parsed
+    : fallback;
+};
+
 // Get all departments with optional pagination and search
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     
     // Parse query parameters
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '100');
+    const page = getPositiveInteger(searchParams.get('page'), 1, 1000000);
+    const limit = getPositiveInteger(searchParams.get('limit'), 100, 100);
     const search = searchParams.get('search') || '';
     
     // Calculate offset
@@ -23,9 +30,9 @@ export async function GET(request) {
         FROM departments 
         WHERE name LIKE ? 
         ORDER BY name ASC
-        LIMIT ? OFFSET ?
+        LIMIT ${limit} OFFSET ${offset}
       `;
-      queryParams = [`%${search}%`, limit, offset];
+      queryParams = [`%${search}%`];
       
       countQuery = `
         SELECT COUNT(*) as total
@@ -38,9 +45,9 @@ export async function GET(request) {
         SELECT id, name 
         FROM departments 
         ORDER BY name ASC
-        LIMIT ? OFFSET ?
+        LIMIT ${limit} OFFSET ${offset}
       `;
-      queryParams = [limit, offset];
+      queryParams = [];
       
       countQuery = `SELECT COUNT(*) as total FROM departments`;
       countParams = [];

@@ -1,6 +1,13 @@
 import { executeQuery } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+const getPositiveInteger = (value, fallback, maximum) => {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 && parsed <= maximum
+    ? parsed
+    : fallback;
+};
+
 // Update a department
 export async function PUT(request, { params }) {
   try {
@@ -79,8 +86,8 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     
     // Parse query parameters
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '100');
+    const page = getPositiveInteger(searchParams.get('page'), 1, 1000000);
+    const limit = getPositiveInteger(searchParams.get('limit'), 100, 100);
     const search = searchParams.get('search') || '';
     const isLeader = searchParams.get('isLeader'); // Add isLeader parameter
     
@@ -104,8 +111,7 @@ export async function GET(request) {
     }
     
     // Add order, limit and offset
-    query += ` ORDER BY name ASC LIMIT ? OFFSET ?`;
-    queryParams.push(limit, offset);
+    query += ` ORDER BY name ASC LIMIT ${limit} OFFSET ${offset}`;
     
     // Count query with the same conditions (except limit/offset)
     let countQuery = `SELECT COUNT(*) as total FROM positions WHERE 1=1`;
