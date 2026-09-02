@@ -1,10 +1,22 @@
 import { executeQuery } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+const parseAnnouncementId = (value) => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+};
+
 // PUT: Update an Existing Announcement
 export async function PUT(req, context) {
   try {
-    const { id } = context.params;
+    const params = await context.params;
+    const rawId = params?.id;
+    const id = parseAnnouncementId(rawId);
+
+    if (id === null) {
+      return NextResponse.json({ message: "A valid announcement ID is required" }, { status: 400 });
+    }
+
     const body = await req.json();
 
     const {
@@ -70,7 +82,13 @@ export async function PUT(req, context) {
 // Delete an announcement
 export async function DELETE(request, context) {
   try {
-    const { id } = context.params;
+    const params = await context.params;
+    const rawId = params?.id;
+    const id = parseAnnouncementId(rawId);
+
+    if (id === null) {
+      return NextResponse.json({ message: "A valid announcement ID is required" }, { status: 400 });
+    }
 
     // Delete announcement
     const deleteQuery = `DELETE FROM announcement WHERE id = ?`;
